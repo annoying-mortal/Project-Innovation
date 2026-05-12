@@ -18,7 +18,9 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
+  "id": null,
   "links": [],
+  "liveNow": false,
   "panels": [
     {
       "datasource": {
@@ -36,7 +38,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": 0
+                "value": null
               },
               {
                 "color": "red",
@@ -49,7 +51,7 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "temperature_top"
+              "options": "顶层油温"
             },
             "properties": [
               {
@@ -59,7 +61,7 @@
                   "steps": [
                     {
                       "color": "green",
-                      "value": 0
+                      "value": null
                     },
                     {
                       "color": "#EAB839",
@@ -77,7 +79,7 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "temperature_winding"
+              "options": "绕组温度"
             },
             "properties": [
               {
@@ -87,7 +89,7 @@
                   "steps": [
                     {
                       "color": "green",
-                      "value": 0
+                      "value": null
                     },
                     {
                       "color": "#EAB839",
@@ -115,7 +117,7 @@
                   "steps": [
                     {
                       "color": "green",
-                      "value": 0
+                      "value": null
                     },
                     {
                       "color": "#EAB839",
@@ -143,7 +145,7 @@
                   "steps": [
                     {
                       "color": "green",
-                      "value": 0
+                      "value": null
                     },
                     {
                       "color": "#EAB839",
@@ -171,7 +173,7 @@
                   "steps": [
                     {
                       "color": "green",
-                      "value": 0
+                      "value": null
                     },
                     {
                       "color": "#EAB839",
@@ -199,7 +201,7 @@
                   "steps": [
                     {
                       "color": "green",
-                      "value": 0
+                      "value": null
                     },
                     {
                       "color": "#EAB839",
@@ -213,12 +215,40 @@
                 }
               }
             ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "CO2"
+            },
+            "properties": [
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green",
+                      "value": null
+                    },
+                    {
+                      "color": "#EAB839",
+                      "value": 2500
+                    },
+                    {
+                      "color": "red",
+                      "value": 5000
+                    }
+                  ]
+                }
+              }
+            ]
           }
         ]
       },
       "gridPos": {
-        "h": 11,
-        "w": 14,
+        "h": 10,
+        "w": 7,
         "x": 0,
         "y": 0
       },
@@ -240,15 +270,15 @@
         "textMode": "value_and_name",
         "wideLayout": true
       },
-      "pluginVersion": "12.4.1",
+      "pluginVersion": "10.2.3",
       "targets": [
         {
-          "query": "from(bucket: \"transformer\")\r\n  |> range(start: -1m)\r\n  |> filter(fn: (r) => r._measurement == \"transformer_001\")\r\n  |> last()\r\n",
-          "refId": "A",
           "datasource": {
             "type": "influxdb",
             "uid": "InfluxDB"
-          }
+          },
+          "query": "from(bucket: \"transformer\")\r\n  |> range(start: -1m)\r\n  |> filter(fn: (r) => r._measurement == \"transformer_001\")\r\n  |> last()\r\n",
+          "refId": "A"
         }
       ],
       "title": "各参数实时总览",
@@ -260,7 +290,63 @@
         "uid": "InfluxDB"
       },
       "gridPos": {
-        "h": 16,
+        "h": 10,
+        "w": 7,
+        "x": 7,
+        "y": 0
+      },
+      "id": 9,
+      "options": {
+        "baidu": {
+          "callback": "bmapReady",
+          "key": ""
+        },
+        "editor": {
+          "format": "auto"
+        },
+        "editorMode": "visual",
+        "gaode": {
+          "key": "",
+          "plugin": "AMap.Scale,AMap.ToolBar"
+        },
+        "getOption": "const series = context.panel.data.series.map((s) => {\n  const sData = s.fields.find((f) => f.type === 'number').values.buffer || s.fields.find((f) => f.type === 'number').values;\n  const sTime = s.fields.find((f) => f.type === 'time').values.buffer || s.fields.find((f) => f.type === 'time').values;\n  \n  return {\n    name: s.refId,\n    type: 'line',\n    showSymbol: false,\n    areaStyle: {\n      opacity: 0.1,\n    },\n    lineStyle: {\n      width: 1,\n    },\n    data: sData.map((d, i) => [sTime[i], d.toFixed(2)]),\n  };\n});\n\n/**\n * Enable Data Zoom by default\n */\nsetTimeout(() => context.panel.chart.dispatchAction({\n  type: 'takeGlobalCursor',\n  key: 'dataZoomSelect',\n  dataZoomSelectActive: true,\n}), 500);\n\n/**\n * Update Time Range on Zoom\n */\ncontext.panel.chart.on('datazoom', function (params) {\n  const startValue = params.batch[0]?.startValue;\n  const endValue = params.batch[0]?.endValue;\n  locationService.partial({ from: startValue, to: endValue });\n});\n\nreturn {\n  backgroundColor: 'transparent',\n  tooltip: {\n    trigger: 'axis',\n  },\n  legend: {\n    left: '0',\n    bottom: '0',\n    data: context.panel.data.series.map((s) => s.refId),\n    textStyle: {\n      color: 'rgba(128, 128, 128, .9)',\n    },\n  },\n  toolbox: {\n    feature: {\n      dataZoom: {\n        yAxisIndex: 'none',\n        icon: {\n          zoom: 'path://',\n          back: 'path://',\n        },\n      },\n      saveAsImage: {},\n    }\n  },\n  xAxis: {\n    type: 'time',\n  },\n  yAxis: {\n    type: 'value',\n    min: 'dataMin',\n  },\n  grid: {\n    left: '2%',\n    right: '2%',\n    top: '2%',\n    bottom: 24,\n    containLabel: true,\n  },\n  series,\n};",
+        "google": {
+          "callback": "gmapReady",
+          "key": ""
+        },
+        "map": "none",
+        "renderer": "svg",
+        "themeEditor": {
+          "config": "{}",
+          "name": "default"
+        },
+        "visualEditor": {
+          "code": "let ratioValue = null;\nlet debugInfo = \"初始化\";\n\ntry {\n  // 💡 关键修复点：适配不同 ECharts 插件的数据获取变量名\n  let grafanaData = null;\n  if (typeof context !== 'undefined' && context.panel && context.panel.data) {\n    grafanaData = context.panel.data; // 主流 ECharts 插件（如 Volkov Labs）的正确姿势\n  } else if (typeof data !== 'undefined') {\n    grafanaData = data; \n  }\n\n  if (!grafanaData || !grafanaData.series || grafanaData.series.length === 0) {\n    debugInfo = \"Grafana 未传递数据，或当前时间段内没有任何数据点。\";\n  } else {\n    const series = grafanaData.series[0];\n\n    // 提取字段用于排错\n    const fieldNames = series.fields.map(f => `${f.name}(${f.type})`).join(\", \");\n    debugInfo = \"当前收到的列有: \" + fieldNames;\n\n    // 暴力寻找目标列\n    let valueField = series.fields.find(f =>\n      (f.type === 'number' && f.name !== 'Time' && f.name !== 'time' && f.name !== '_time') ||\n      f.name === '_value' ||\n      f.name === 'CO2_CO_Ratio'\n    );\n\n    if (valueField && valueField.values) {\n      // 兼容 Grafana 的 Vector 结构\n      const rawValues = valueField.values.buffer || (typeof valueField.values.toArray === 'function' ? valueField.values.toArray() : valueField.values);\n      const valuesArray = Array.from(rawValues);\n\n      const validValues = valuesArray.filter(v => typeof v === 'number' && !isNaN(v));\n\n      if (validValues.length > 0) {\n        ratioValue = validValues[validValues.length - 1]; // 取最新真实值\n      } else {\n        debugInfo += \"\\n-> 找到了数据列，但里面全是 null\";\n      }\n    } else {\n      debugInfo += \"\\n-> 没找到匹配的数值列\";\n    }\n  }\n} catch (error) {\n  debugInfo = \"代码执行报错: \" + error.message;\n}\n\n// 1. 如果没拿到数据，显示底层 debug 信息\nif (ratioValue === null) {\n  return {\n    backgroundColor: 'transparent',\n    title: {\n      text: '⚠️ 数据提取失败\\n\\n' + debugInfo,\n      left: 'center',\n      top: 'center',\n      textStyle: { color: '#F2495C', fontSize: 14, lineHeight: 24 }\n    }\n  };\n}\n\n// 2. 成功拿到数据，正常渲染你的炫酷仪表盘！\nreturn {\n  backgroundColor: 'transparent',\n  tooltip: { formatter: '{a} <br/>{b} : {c}' },\n  series: [\n    {\n      name: 'CO2/CO 比值',\n      type: 'gauge',\n      min: 0,\n      max: 15,\n      splitNumber: 5,\n      radius: '85%',\n      axisLine: {\n        lineStyle: {\n          width: 18,\n          color: [\n            [0.2, '#F2495C'],    // < 3: 红色\n            [0.6667, '#73BF69'], // 3~10: 绿色\n            [1, '#FF9830']       // > 10: 橙色\n          ]\n        }\n      },\n      pointer: { itemStyle: { color: 'auto' } },\n      axisTick: { distance: -18, length: 8, lineStyle: { color: '#fff', width: 2 } },\n      splitLine: { distance: -18, length: 30, lineStyle: { color: '#fff', width: 4 } },\n      axisLabel: { color: 'inherit', distance: 25, fontSize: 14 },\n      detail: {\n        valueAnimation: true,\n        formatter: '{value}',\n        color: 'inherit',\n        fontSize: 36,\n        fontWeight: 'bold',\n        offsetCenter: [0, '60%']\n      },\n      title: { offsetCenter: [0, '90%'], fontSize: 16, color: '#ccc' },\n      data: [{ value: Number(ratioValue).toFixed(2), name: '实时状态比值' }]\n    }\n  ]\n};",
+          "dataset": [],
+          "series": []
+        }
+      },
+      "pluginVersion": "6.6.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "InfluxDB"
+          },
+          "query": "from(bucket: \"transformer\")\r\n  |> range(start: -24h)  \r\n  |> filter(fn: (r) => r._measurement == \"transformer_001\")\r\n  |> filter(fn: (r) => r._field == \"CO2\" or r._field == \"CO\")\r\n  |> truncateTimeColumn(unit: 1m) \r\n  |> pivot(rowKey:[\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")\r\n  |> filter(fn: (r) => exists r.CO and exists r.CO2)\r\n  |> map(fn: (r) => ({\r\n      _time: r._time,\r\n      _measurement: r._measurement,\r\n      _field: \"CO2_CO_Ratio\", \r\n      _value: if r.CO > 0.0 then float(v: r.CO2) / float(v: r.CO) else 0.0\r\n  }))\r\n  |> last()",
+          "refId": "A"
+        }
+      ],
+      "title": "CO2/CO状态比值",
+      "type": "volkovlabs-echarts-panel"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "InfluxDB"
+      },
+      "gridPos": {
+        "h": 14,
         "w": 10,
         "x": 14,
         "y": 0
@@ -296,15 +382,15 @@
           "series": []
         }
       },
-      "pluginVersion": "7.2.4",
+      "pluginVersion": "6.6.0",
       "targets": [
         {
-          "query": "import \"influxdata/influxdb/schema\"\r\n\r\nfrom(bucket: \"transformer\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"transformer_001\")\r\n  |> filter(fn: (r) => r[\"_field\"] == \"CH4\" or r[\"_field\"] == \"C2H2\" or r[\"_field\"] == \"C2H4\")\r\n  |> last()  // 🌟 关键优化：先拿出最新的那一条数据，过滤掉没用的历史数据\r\n  |> schema.fieldsAsCols()  // 🌟 用官方内置函数代替手动 pivot，自动处理缺失列的问题\r\n  |> map(fn: (r) => {\r\n      // 获取数值，如果没有则默认为 0\r\n      ch4 = if exists r.CH4 then float(v: r.CH4) else 0.0\r\n      c2h2 = if exists r.C2H2 then float(v: r.C2H2) else 0.0\r\n      c2h4 = if exists r.C2H4 then float(v: r.C2H4) else 0.0\r\n      total = ch4 + c2h2 + c2h4\r\n      \r\n      // 增加 total > 0 的判断，防止被除数为 0 导致新的报错\r\n      return {\r\n          _time: r._time,\r\n          CH4_pct: if total > 0.0 then (ch4 / total) * 100.0 else 0.0,\r\n          C2H2_pct: if total > 0.0 then (c2h2 / total) * 100.0 else 0.0,\r\n          C2H4_pct: if total > 0.0 then (c2h4 / total) * 100.0 else 0.0\r\n      }\r\n  })",
-          "refId": "A",
           "datasource": {
             "type": "influxdb",
             "uid": "InfluxDB"
-          }
+          },
+          "query": "import \"influxdata/influxdb/schema\"\r\n\r\nfrom(bucket: \"transformer\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"transformer_001\")\r\n  |> filter(fn: (r) => r[\"_field\"] == \"CH4\" or r[\"_field\"] == \"C2H2\" or r[\"_field\"] == \"C2H4\")\r\n  |> last()  // 🌟 关键优化：先拿出最新的那一条数据，过滤掉没用的历史数据\r\n  |> schema.fieldsAsCols()  // 🌟 用官方内置函数代替手动 pivot，自动处理缺失列的问题\r\n  |> map(fn: (r) => {\r\n      // 获取数值，如果没有则默认为 0\r\n      ch4 = if exists r.CH4 then float(v: r.CH4) else 0.0\r\n      c2h2 = if exists r.C2H2 then float(v: r.C2H2) else 0.0\r\n      c2h4 = if exists r.C2H4 then float(v: r.C2H4) else 0.0\r\n      total = ch4 + c2h2 + c2h4\r\n      \r\n      // 增加 total > 0 的判断，防止被除数为 0 导致新的报错\r\n      return {\r\n          _time: r._time,\r\n          CH4_pct: if total > 0.0 then (ch4 / total) * 100.0 else 0.0,\r\n          C2H2_pct: if total > 0.0 then (c2h2 / total) * 100.0 else 0.0,\r\n          C2H4_pct: if total > 0.0 then (c2h4 / total) * 100.0 else 0.0\r\n      }\r\n  })",
+          "refId": "A"
         }
       ],
       "title": "Duval三角形检测",
@@ -327,7 +413,336 @@
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
-            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineStyle": {
+              "fill": "solid"
+            },
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 11,
+        "w": 14,
+        "x": 0,
+        "y": 10
+      },
+      "id": 10,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "InfluxDB"
+          },
+          "query": "from(bucket: \"transformer\")\r\n  |> range(start: -10m)\r\n  |> filter(fn: (r) => r._measurement == \"transformer_001\")\r\n  |> filter(fn: (r) =>\r\n      r._field == \"CO\" or\r\n      r._field == \"CO2\")",
+          "refId": "A"
+        }
+      ],
+      "title": "油中溶解CO/CO2浓度",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "InfluxDB"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "max": 50,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "#EAB839",
+                "value": 15
+              },
+              {
+                "color": "red",
+                "value": 25
+              }
+            ]
+          },
+          "unit": "ppm"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 11,
+        "w": 10,
+        "x": 14,
+        "y": 14
+      },
+      "id": 3,
+      "options": {
+        "minVizHeight": 75,
+        "minVizWidth": 75,
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true,
+        "sizing": "auto"
+      },
+      "pluginVersion": "10.2.3",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "InfluxDB"
+          },
+          "query": "from(bucket: \"transformer\")\r\n  |> range(start: -1m)\r\n  |> filter(fn: (r) => r._measurement == \"transformer_001\")\r\n  |> filter(fn: (r) => r._field == \"微水含量\")\r\n  |> last()\r\n",
+          "refId": "A"
+        }
+      ],
+      "title": "油中微水含量",
+      "type": "gauge"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "InfluxDB"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineStyle": {
+              "fill": "solid"
+            },
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "ppm"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 12,
+        "w": 14,
+        "x": 0,
+        "y": 21
+      },
+      "id": 2,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.4.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "InfluxDB"
+          },
+          "query": "from(bucket: \"transformer\")\r\n  |> range(start: -10m)\r\n  |> filter(fn: (r) => r._measurement == \"transformer_001\")\r\n  |> filter(fn: (r) =>\r\n      r._field == \"H2\" or\r\n      r._field == \"CH4\" or\r\n      r._field == \"C2H2\" or\r\n      r._field == \"C2H24\" or\r\n      r._field == \"C2H6\" or\r\n      r._field == \"C2H4\")\r\n",
+          "refId": "A"
+        }
+      ],
+      "title": "油中溶解烃类气体浓度",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "InfluxDB"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "max": 140,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "#EAB839",
+                "value": 95
+              },
+              {
+                "color": "red",
+                "value": 110
+              }
+            ]
+          },
+          "unit": "celsius"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 12,
+        "w": 10,
+        "x": 14,
+        "y": 25
+      },
+      "id": 4,
+      "options": {
+        "minVizHeight": 75,
+        "minVizWidth": 75,
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true,
+        "sizing": "auto"
+      },
+      "pluginVersion": "10.2.3",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "InfluxDB"
+          },
+          "query": "from(bucket: \"transformer\")\r\n  |> range(start: -1m)\r\n  |> filter(fn: (r) => r._measurement == \"transformer_001\")\r\n  |> filter(fn: (r) => r._field == \"绕组温度\")\r\n  |> last()\r\n",
+          "refId": "A"
+        }
+      ],
+      "title": "绕组热点温度",
+      "type": "gauge"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "InfluxDB"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
             "drawStyle": "line",
             "fillOpacity": 0,
             "gradientMode": "none",
@@ -344,7 +759,6 @@
               "type": "linear"
             },
             "showPoints": "auto",
-            "showValues": false,
             "spanNulls": false,
             "stacking": {
               "group": "A",
@@ -362,8 +776,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": 0
+                "color": "green"
               },
               {
                 "color": "#EAB839",
@@ -379,10 +792,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 14,
+        "h": 10,
         "w": 14,
         "x": 0,
-        "y": 11
+        "y": 33
       },
       "id": 1,
       "options": {
@@ -417,272 +830,60 @@
         "type": "influxdb",
         "uid": "InfluxDB"
       },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [],
-          "max": 140,
-          "min": 0,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": 0
-              },
-              {
-                "color": "#EAB839",
-                "value": 95
-              },
-              {
-                "color": "red",
-                "value": 110
-              }
-            ]
-          },
-          "unit": "celsius"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 10,
-        "w": 10,
-        "x": 14,
-        "y": 16
-      },
-      "id": 4,
-      "options": {
-        "minVizHeight": 75,
-        "minVizWidth": 75,
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showThresholdLabels": false,
-        "showThresholdMarkers": true,
-        "sizing": "auto"
-      },
-      "pluginVersion": "12.4.1",
-      "targets": [
-        {
-          "query": "from(bucket: \"transformer\")\r\n  |> range(start: -1m)\r\n  |> filter(fn: (r) => r._measurement == \"transformer_001\")\r\n  |> filter(fn: (r) => r._field == \"绕组温度\")\r\n  |> last()\r\n",
-          "refId": "A",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "InfluxDB"
-          }
-        }
-      ],
-      "title": "绕组热点温度",
-      "type": "gauge"
-    },
-    {
-      "datasource": {
-        "type": "influxdb",
-        "uid": "InfluxDB"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "barWidthFactor": 0.6,
-            "drawStyle": "line",
-            "fillOpacity": 0,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "showValues": false,
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "min": 0,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": 0
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          },
-          "unit": "ppm"
-        },
-        "overrides": []
-      },
       "gridPos": {
         "h": 11,
-        "w": 14,
-        "x": 0,
-        "y": 25
-      },
-      "id": 2,
-      "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "tooltip": {
-          "hideZeros": false,
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "pluginVersion": "12.4.1",
-      "targets": [
-        {
-          "query": "from(bucket: \"transformer\")\r\n  |> range(start: -10m)\r\n  |> filter(fn: (r) => r._measurement == \"transformer_001\")\r\n  |> filter(fn: (r) =>\r\n      r._field == \"H2\" or\r\n      r._field == \"CH4\" or\r\n      r._field == \"C2H2\" or\r\n      r._field == \"CO\" or\r\n      r._field == \"C2H4\")\r\n",
-          "refId": "A",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "InfluxDB"
-          }
-        }
-      ],
-      "title": "油中溶解气体浓度",
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "influxdb",
-        "uid": "InfluxDB"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [],
-          "max": 50,
-          "min": 0,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": 0
-              },
-              {
-                "color": "#EAB839",
-                "value": 15
-              },
-              {
-                "color": "red",
-                "value": 25
-              }
-            ]
-          },
-          "unit": "ppm"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 10,
-        "w": 10,
-        "x": 14,
-        "y": 26
-      },
-      "id": 3,
-      "options": {
-        "minVizHeight": 75,
-        "minVizWidth": 75,
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showThresholdLabels": false,
-        "showThresholdMarkers": true,
-        "sizing": "auto"
-      },
-      "pluginVersion": "12.4.1",
-      "targets": [
-        {
-          "query": "from(bucket: \"transformer\")\r\n  |> range(start: -1m)\r\n  |> filter(fn: (r) => r._measurement == \"transformer_001\")\r\n  |> filter(fn: (r) => r._field == \"微水含量\")\r\n  |> last()\r\n",
-          "refId": "A",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "InfluxDB"
-          }
-        }
-      ],
-      "title": "油中微水含量",
-      "type": "gauge"
-    },
-    {
-      "id": 8,
-      "type": "volkovlabs-echarts-panel",
-      "title": "IEC 三比值法故障诊断",
-      "gridPos": {
-        "h": 14,
         "w": 24,
         "x": 0,
-        "y": 36
+        "y": 43
       },
-      "datasource": {
-        "type": "influxdb",
-        "uid": "InfluxDB"
+      "id": 8,
+      "options": {
+        "baidu": {
+          "callback": "bmapReady",
+          "key": ""
+        },
+        "editor": {
+          "format": "auto"
+        },
+        "editorMode": "code",
+        "gaode": {
+          "key": "",
+          "plugin": "AMap.Scale,AMap.ToolBar"
+        },
+        "getOption": "// =====================================================\n// IEC 三比值法故障诊断面板 — ECharts getOption 脚本\n// 修改字体大小：搜索 font: 'XXpx'\n// 修改卡片尺寸：修改下方「布局计算」区域\n// =====================================================\n\n// ===== 从 Grafana 数据帧中提取最新气体浓度 =====\nconst series = context.panel.data.series;\nlet H2 = 0, CH4 = 0, C2H2 = 0, C2H4 = 0, C2H6 = 0;\n\nif (series && series.length > 0) {\n  series[0].fields.forEach(f => {\n    const v = f.values[f.values.length - 1];\n    if (v == null) return;\n    if (f.name === 'H2') H2 = v;\n    if (f.name === 'CH4') CH4 = v;\n    if (f.name === 'C2H2') C2H2 = v;\n    if (f.name === 'C2H4') C2H4 = v;\n    if (f.name === 'C2H6') C2H6 = v;\n  });\n}\n\n// ===== 计算 IEC 三比值 =====\nconst r1 = H2 > 0 ? CH4 / H2 : 0;   // CH4  / H2\nconst r2 = C2H4 > 0 ? C2H2 / C2H4 : 0;   // C2H2 / C2H4\nconst r3 = C2H6 > 0 ? C2H4 / C2H6 : 0;   // C2H4 / C2H6\n\n// ===== IEC 60599 编码规则 =====\nconst c1 = r1 < 0.1 ? 0 : r1 <= 1.0 ? 1 : 2;   // CH4/H2  : <0.1→0, 0.1~1→1, >1→2\nconst c2 = r2 < 0.1 ? 0 : r2 <= 3.0 ? 1 : 2;   // C2H2/C2H4: <0.1→0, 0.1~3→1, >3→2\nconst c3 = r3 < 1.0 ? 0 : r3 <= 3.0 ? 1 : 2;   // C2H4/C2H6: <1→0,   1~3→1,   >3→2\n\n// ===== 故障类型查找表（IEC 60599 Table 1）=====\nconst faultTable = {\n  '000': { name: '正常老化', color: '#52c41a' },\n  '100': { name: '局部放电', color: '#fadb14' },\n  '110': { name: '低能量放电', color: '#fa8c16' },\n  '010': { name: '低能量放电', color: '#fa8c16' },\n  '020': { name: '高能量放电', color: '#ff4d4f' },\n  '120': { name: '高能量放电', color: '#ff4d4f' },\n  '001': { name: '热故障 <150°C', color: '#ffa940' },\n  '002': { name: '热故障 150~300°C', color: '#fa8c16' },\n  '101': { name: '热故障 300~700°C', color: '#ff4d4f' },\n  '202': { name: '热故障 >700°C', color: '#cf1322' },\n};\nconst fault = faultTable[`${c1}${c2}${c3}`] || { name: '无法判断', color: '#8c8c8c' };\n\n// ===== 主题色（自动适配 Grafana 深色/浅色）=====\nconst isDark = context.grafana.theme.isDark;\nconst cardBg = isDark ? '#1e2a3a' : '#ffffff';\nconst textMain = isDark ? '#e2e8f0' : '#1a202c';\nconst textSub = isDark ? '#94a3b8' : '#718096';\nconst border = isDark ? '#2d4a6a' : '#e2e8f0';\n\nfunction codeColor(code) {\n  return ['#52c41a', '#fadb14', '#ff4d4f'][code] || '#8c8c8c';\n}\n\n// ===== 布局计算（调整这里改卡片大小）=====\nconst W = context.panel.chart.getWidth();\nconst H = context.panel.chart.getHeight();\nconst pad = 10;                          // 卡片间距（px）\nconst cw = (W - pad * 5) * 0.235;      // 比值卡片宽度\nconst dw = (W - pad * 5) * 0.265;      // 诊断卡片宽度（稍宽）\nconst ch = H * 0.75;                     // 卡片高度\nconst cy = 8;                          // 卡片顶部偏移\n\n// ===== 比值卡片生成函数 =====\nfunction ratioCard(x, label, ratioVal, code) {\n  const col = codeColor(code);\n  return {\n    type: 'group', x, y: cy,\n    children: [\n      // 卡片背景\n      {\n        type: 'rect',\n        shape: { x: 0, y: 20, width: cw, height: ch, r: 10 },\n        style: { fill: cardBg, stroke: border, lineWidth: 1.5 }\n      },\n\n      // 比值名称（如 CH4 / H2）\n      {\n        type: 'text',\n        style: {\n          x: cw / 2, y: ch * 0.25, text: label,\n          textAlign: 'center', fill: textSub,\n          font: '15px sans-serif'\n        }\n      },               // ← 标签字体大小\n\n      // 比值数值\n      {\n        type: 'text',\n        style: {\n          x: cw / 2, y: ch * 0.45, text: ratioVal.toFixed(4),\n          textAlign: 'center', fill: textMain,\n          font: 'bold 28px \"Courier New\", monospace'\n        }\n      },  // ← 数值字体大小\n\n      // \"编码\"小标签\n      {\n        type: 'text',\n        style: {\n          x: cw / 2, y: ch * 0.65, text: '编  码',\n          textAlign: 'center', fill: textSub,\n          font: '13px sans-serif'\n        }\n      },               // ← 编码标签字体大小\n\n      // 编码色块背景\n      {\n        type: 'rect',\n        shape: { x: cw / 2 - 22, y: ch * 0.75, width: 44, height: 36, r: 6 },\n        style: { fill: col + '33', stroke: col, lineWidth: 2 }\n      },\n\n      // 编码数字（0 / 1 / 2）\n      {\n        type: 'text',\n        style: {\n          x: cw / 2, y: ch * 0.75 + ch * 0.04, text: String(code),\n          textAlign: 'center', fill: col,\n          font: 'bold 22px sans-serif'\n        }\n      },          // ← 编码数字字体大小\n    ]\n  };\n}\n\n// ===== 拼装最终 ECharts option =====\nconst x1 = pad;\nconst x2 = x1 + cw + pad;\nconst x3 = x2 + cw + pad;\nconst x4 = x3 + cw + pad;\n\nreturn {\n  backgroundColor: 'transparent',\n  graphic: [\n    // 三个比值卡片\n    ratioCard(x1, 'CH4 / H2', r1, c1),\n    ratioCard(x2, 'C2H2 / C2H4', r2, c2),\n    ratioCard(x3, 'C2H4 / C2H6', r3, c3),\n\n    // 诊断结果卡片\n    {\n      type: 'group', x: x4, y: cy,\n      children: [\n        // 卡片背景\n        {\n          type: 'rect',\n          shape: { x: 0, y: 20, width: dw, height: ch, r: 10 },\n          style: { fill: fault.color + '1a', stroke: fault.color, lineWidth: 2.5 }\n        },\n\n        // \"诊断结果\"标签\n        {\n          type: 'text',\n          style: {\n            x: dw / 2, y: ch * 0.20, text: '诊 断 结 果',\n            textAlign: 'center', fill: textSub,\n            font: '15px sans-serif'\n          }\n        },              // ← 标签字体大小\n\n        // 故障类型名称\n        {\n          type: 'text',\n          style: {\n            x: dw / 2, y: ch * 0.35, text: fault.name,\n            textAlign: 'center', fill: fault.color,\n            font: 'bold 28px sans-serif'\n          }\n        },         // ← 故障名称字体大小\n\n        // 编码组合\n        {\n          type: 'text',\n          style: {\n            x: dw / 2, y: ch * 0.60,\n            text: `编码组合  [ ${c1},  ${c2},  ${c3} ]`,\n            textAlign: 'center', fill: textSub,\n            font: '14px \"Courier New\", monospace'\n          }\n        }, // ← 编码组合字体大小\n\n        // 分隔线\n        {\n          type: 'line',\n          shape: { x1: dw * 0.12, y1: ch * 0.72, x2: dw * 0.88, y2: ch * 0.72 },\n          style: { stroke: border, lineWidth: 1 }\n        },\n\n        // 气体原始值（第一行）\n        {\n          type: 'text',\n          style: {\n            x: dw / 2, y: ch * 0.78,\n            text: `H2:${H2.toFixed(1)}  CH4:${CH4.toFixed(1)}  C2H6:${C2H6.toFixed(1)}`,\n            textAlign: 'center', fill: textSub,\n            font: '13px monospace'\n          }\n        },               // ← 原始值字体大小\n\n        // 气体原始值（第二行）\n        {\n          type: 'text',\n          style: {\n            x: dw / 2, y: ch * 0.90,\n            text: `C2H2:${C2H2.toFixed(2)}  C2H4:${C2H4.toFixed(1)}`,\n            textAlign: 'center', fill: textSub,\n            font: '13px monospace'\n          }\n        },               // ← 原始值字体大小\n      ]\n    },\n  ]\n};\n",
+        "google": {
+          "callback": "gmapReady",
+          "key": ""
+        },
+        "map": "none",
+        "renderer": "canvas",
+        "themeEditor": {
+          "config": "{}",
+          "name": "default"
+        },
+        "visualEditor": {
+          "code": "return {\n  dataset: context.editor.dataset,\n  series: context.editor.series,\n  xAxis: {\n    type: 'time',\n  },\n  yAxis: {\n    type: 'value',\n    min: 'dataMin',\n  },\n}\n",
+          "dataset": [],
+          "series": []
+        }
       },
+      "pluginVersion": "6.6.0",
       "targets": [
         {
-          "refId": "A",
           "datasource": {
             "type": "influxdb",
             "uid": "InfluxDB"
           },
-          "query": "// IEC 三比值法面板 — InfluxDB Flux 查询\n// 拉取最新一条数据中的 5 种气体浓度\n\nimport \"influxdata/influxdb/schema\"\n\nfrom(bucket: \"transformer\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"transformer_001\")\n  |> filter(fn: (r) =>\n      r[\"_field\"] == \"H2\"   or\n      r[\"_field\"] == \"CH4\"  or\n      r[\"_field\"] == \"C2H2\" or\n      r[\"_field\"] == \"C2H4\" or\n      r[\"_field\"] == \"C2H6\"\n  )\n  |> last()\n  |> schema.fieldsAsCols()\n"
+          "query": "// IEC 三比值法面板 — InfluxDB Flux 查询\n// 拉取最新一条数据中的 5 种气体浓度\n\nimport \"influxdata/influxdb/schema\"\n\nfrom(bucket: \"transformer\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"transformer_001\")\n  |> filter(fn: (r) =>\n      r[\"_field\"] == \"H2\"   or\n      r[\"_field\"] == \"CH4\"  or\n      r[\"_field\"] == \"C2H2\" or\n      r[\"_field\"] == \"C2H4\" or\n      r[\"_field\"] == \"C2H6\"\n  )\n  |> last()\n  |> schema.fieldsAsCols()\n",
+          "refId": "A"
         }
       ],
-      "options": {
-        "getOption": "// =====================================================\n// IEC 三比值法故障诊断面板 — ECharts getOption 脚本\n// 修改字体大小：搜索 font: 'XXpx'\n// 修改卡片尺寸：修改下方「布局计算」区域\n// =====================================================\n\n// ===== 从 Grafana 数据帧中提取最新气体浓度 =====\nconst series = context.panel.data.series;\nlet H2 = 0, CH4 = 0, C2H2 = 0, C2H4 = 0, C2H6 = 0;\n\nif (series && series.length > 0) {\n  series[0].fields.forEach(f => {\n    const v = f.values[f.values.length - 1];\n    if (v == null) return;\n    if (f.name === 'H2')   H2   = v;\n    if (f.name === 'CH4')  CH4  = v;\n    if (f.name === 'C2H2') C2H2 = v;\n    if (f.name === 'C2H4') C2H4 = v;\n    if (f.name === 'C2H6') C2H6 = v;\n  });\n}\n\n// ===== 计算 IEC 三比值 =====\nconst r1 = H2   > 0 ? CH4  / H2   : 0;   // CH4  / H2\nconst r2 = C2H4 > 0 ? C2H2 / C2H4 : 0;   // C2H2 / C2H4\nconst r3 = C2H6 > 0 ? C2H4 / C2H6 : 0;   // C2H4 / C2H6\n\n// ===== IEC 60599 编码规则 =====\nconst c1 = r1 < 0.1 ? 0 : r1 <= 1.0 ? 1 : 2;   // CH4/H2  : <0.1→0, 0.1~1→1, >1→2\nconst c2 = r2 < 0.1 ? 0 : r2 <= 3.0 ? 1 : 2;   // C2H2/C2H4: <0.1→0, 0.1~3→1, >3→2\nconst c3 = r3 < 1.0 ? 0 : r3 <= 3.0 ? 1 : 2;   // C2H4/C2H6: <1→0,   1~3→1,   >3→2\n\n// ===== 故障类型查找表（IEC 60599 Table 1）=====\nconst faultTable = {\n  '000': { name: '正常老化',          color: '#52c41a' },\n  '100': { name: '局部放电',          color: '#fadb14' },\n  '110': { name: '低能量放电',        color: '#fa8c16' },\n  '010': { name: '低能量放电',        color: '#fa8c16' },\n  '020': { name: '高能量放电',        color: '#ff4d4f' },\n  '120': { name: '高能量放电',        color: '#ff4d4f' },\n  '001': { name: '热故障 <150°C',    color: '#ffa940' },\n  '002': { name: '热故障 150~300°C', color: '#fa8c16' },\n  '101': { name: '热故障 300~700°C', color: '#ff4d4f' },\n  '202': { name: '热故障 >700°C',    color: '#cf1322' },\n};\nconst fault = faultTable[`${c1}${c2}${c3}`] || { name: '无法判断', color: '#8c8c8c' };\n\n// ===== 主题色（自动适配 Grafana 深色/浅色）=====\nconst isDark   = context.grafana.theme.isDark;\nconst cardBg   = isDark ? '#1e2a3a' : '#ffffff';\nconst textMain = isDark ? '#e2e8f0' : '#1a202c';\nconst textSub  = isDark ? '#94a3b8' : '#718096';\nconst border   = isDark ? '#2d4a6a' : '#e2e8f0';\n\nfunction codeColor(code) {\n  return ['#52c41a', '#fadb14', '#ff4d4f'][code] || '#8c8c8c';\n}\n\n// ===== 布局计算（调整这里改卡片大小）=====\nconst W   = context.panel.chart.getWidth();\nconst H   = context.panel.chart.getHeight();\nconst pad = 10;                          // 卡片间距（px）\nconst cw  = (W - pad * 5) * 0.235;      // 比值卡片宽度\nconst dw  = (W - pad * 5) * 0.265;      // 诊断卡片宽度（稍宽）\nconst ch  = H * 0.75;                     // 卡片高度\nconst cy  = 8;                          // 卡片顶部偏移\n\n// ===== 比值卡片生成函数 =====\nfunction ratioCard(x, label, ratioVal, code) {\n  const col = codeColor(code);\n  return {\n    type: 'group', x, y: cy,\n    children: [\n      // 卡片背景\n      { type: 'rect',\n        shape: { x: 0, y: 0, width: cw, height: ch, r: 10 },\n        style: { fill: cardBg, stroke: border, lineWidth: 1.5 } },\n\n      // 比值名称（如 CH4 / H2）\n      { type: 'text',\n        style: { x: cw/2, y: ch * 0.10, text: label,\n                 textAlign: 'center', fill: textSub,\n                 font: '15px sans-serif' } },               // ← 标签字体大小\n\n      // 比值数值（如 0.6795）\n      { type: 'text',\n        style: { x: cw/2, y: ch * 0.42, text: ratioVal.toFixed(4),\n                 textAlign: 'center', fill: textMain,\n                 font: 'bold 28px \"Courier New\", monospace' } },  // ← 数值字体大小\n\n      // \"编码\"小标签\n      { type: 'text',\n        style: { x: cw/2, y: ch * 0.63, text: '编  码',\n                 textAlign: 'center', fill: textSub,\n                 font: '13px sans-serif' } },               // ← 编码标签字体大小\n\n      // 编码色块背景\n      { type: 'rect',\n        shape: { x: cw/2 - 22, y: ch * 0.72, width: 44, height: 36, r: 6 },\n        style: { fill: col + '33', stroke: col, lineWidth: 2 } },\n\n      // 编码数字（0 / 1 / 2）\n      { type: 'text',\n        style: { x: cw/2, y: ch * 0.72 + ch * 0.12, text: String(code),\n                 textAlign: 'center', fill: col,\n                 font: 'bold 22px sans-serif' } },          // ← 编码数字字体大小\n    ]\n  };\n}\n\n// ===== 拼装最终 ECharts option =====\nconst x1 = pad;\nconst x2 = x1 + cw + pad;\nconst x3 = x2 + cw + pad;\nconst x4 = x3 + cw + pad;\n\nreturn {\n  backgroundColor: 'transparent',\n  graphic: [\n    // 三个比值卡片\n    ratioCard(x1, 'CH4 / H2',    r1, c1),\n    ratioCard(x2, 'C2H2 / C2H4', r2, c2),\n    ratioCard(x3, 'C2H4 / C2H6', r3, c3),\n\n    // 诊断结果卡片\n    {\n      type: 'group', x: x4, y: cy,\n      children: [\n        // 卡片背景\n        { type: 'rect',\n          shape: { x: 0, y: 0, width: dw, height: ch, r: 10 },\n          style: { fill: fault.color + '1a', stroke: fault.color, lineWidth: 2.5 } },\n\n        // \"诊断结果\"标签\n        { type: 'text',\n          style: { x: dw/2, y: ch * 0.10, text: '诊 断 结 果',\n                   textAlign: 'center', fill: textSub,\n                   font: '15px sans-serif' } },              // ← 标签字体大小\n\n        // 故障类型名称\n        { type: 'text',\n          style: { x: dw/2, y: ch * 0.40, text: fault.name,\n                   textAlign: 'center', fill: fault.color,\n                   font: 'bold 28px sans-serif' } },         // ← 故障名称字体大小\n\n        // 编码组合\n        { type: 'text',\n          style: { x: dw/2, y: ch * 0.60,\n                   text: `编码组合  [ ${c1},  ${c2},  ${c3} ]`,\n                   textAlign: 'center', fill: textSub,\n                   font: '14px \"Courier New\", monospace' } }, // ← 编码组合字体大小\n\n        // 分隔线\n        { type: 'line',\n          shape: { x1: dw*0.12, y1: ch*0.70, x2: dw*0.88, y2: ch*0.70 },\n          style: { stroke: border, lineWidth: 1 } },\n\n        // 气体原始值（第一行）\n        { type: 'text',\n          style: { x: dw/2, y: ch * 0.78,\n                   text: `H2:${H2.toFixed(1)}  CH4:${CH4.toFixed(1)}  C2H6:${C2H6.toFixed(1)}`,\n                   textAlign: 'center', fill: textSub,\n                   font: '13px monospace' } },               // ← 原始值字体大小\n\n        // 气体原始值（第二行）\n        { type: 'text',\n          style: { x: dw/2, y: ch * 0.90,\n                   text: `C2H2:${C2H2.toFixed(2)}  C2H4:${C2H4.toFixed(1)}`,\n                   textAlign: 'center', fill: textSub,\n                   font: '13px monospace' } },               // ← 原始值字体大小\n      ]\n    },\n  ]\n};\n",
-        "renderer": "canvas",
-        "editorMode": "code"
-      }
+      "title": "IEC 三比值法故障诊断",
+      "type": "volkovlabs-echarts-panel"
     }
   ],
-  "preload": false,
   "refresh": "5s",
-  "schemaVersion": 42,
+  "schemaVersion": 39,
   "tags": [],
   "templating": {
     "list": []
@@ -695,7 +896,6 @@
   "timezone": "browser",
   "title": "变压器实时监测",
   "uid": "adpt2zv",
-  "version": 43,
-  "weekStart": "",
-  "id": null
+  "version": 18,
+  "weekStart": ""
 }
