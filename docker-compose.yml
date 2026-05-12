@@ -1,0 +1,51 @@
+services:
+
+  # ─────────────────────────────────────────
+  # InfluxDB 2.7.1
+  # UI:  http://localhost:8086
+  # ─────────────────────────────────────────
+  influxdb:
+    image: influxdb:2.7.1
+    container_name: influxdb
+    restart: unless-stopped
+    ports:
+      - "8086:8086"
+    volumes:
+      - influxdb-data:/var/lib/influxdb2
+      - influxdb-config:/etc/influxdb2
+    environment:
+      # 自动初始化（等同于图中第一步第3节的手动填写）
+      DOCKER_INFLUXDB_INIT_MODE:     setup
+      DOCKER_INFLUXDB_INIT_USERNAME: admin
+      DOCKER_INFLUXDB_INIT_PASSWORD: admin123456
+      DOCKER_INFLUXDB_INIT_ORG:      lab
+      DOCKER_INFLUXDB_INIT_BUCKET:   transformer
+      # 固定 API Token，方便 Grafana 自动接入；可自行修改为更复杂的字符串
+      DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: my-influxdb-super-secret-token
+
+  # ─────────────────────────────────────────
+  # Grafana 10.2.3
+  # UI:  http://localhost:3000
+  # 默认账号: admin / admin（首次登录会提示修改密码）
+  # ─────────────────────────────────────────
+  grafana:
+    image: grafana/grafana:10.2.3
+    container_name: grafana
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana-data:/var/lib/grafana
+      # 自动注入 InfluxDB 数据源配置，无需在 UI 里手动添加
+      - ./grafana/provisioning:/etc/grafana/provisioning
+    environment:
+      GF_SECURITY_ADMIN_USER:     admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_INSTALL_PLUGINS: volkovlabs-echarts-panel 6.6.0
+    depends_on:
+      - influxdb
+
+volumes:
+  influxdb-data:
+  influxdb-config:
+  grafana-data:

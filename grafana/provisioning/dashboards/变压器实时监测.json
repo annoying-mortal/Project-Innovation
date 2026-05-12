@@ -1,0 +1,701 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "links": [],
+  "panels": [
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "InfluxDB"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "temperature_top"
+            },
+            "properties": [
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green",
+                      "value": 0
+                    },
+                    {
+                      "color": "#EAB839",
+                      "value": 80
+                    },
+                    {
+                      "color": "red",
+                      "value": 90
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "temperature_winding"
+            },
+            "properties": [
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green",
+                      "value": 0
+                    },
+                    {
+                      "color": "#EAB839",
+                      "value": 95
+                    },
+                    {
+                      "color": "red",
+                      "value": 110
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "H2"
+            },
+            "properties": [
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green",
+                      "value": 0
+                    },
+                    {
+                      "color": "#EAB839",
+                      "value": 150
+                    },
+                    {
+                      "color": "red",
+                      "value": 300
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "CH4"
+            },
+            "properties": [
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green",
+                      "value": 0
+                    },
+                    {
+                      "color": "#EAB839",
+                      "value": 150
+                    },
+                    {
+                      "color": "red",
+                      "value": 200
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "C2H2"
+            },
+            "properties": [
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green",
+                      "value": 0
+                    },
+                    {
+                      "color": "#EAB839",
+                      "value": 2
+                    },
+                    {
+                      "color": "red",
+                      "value": 5
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "CO"
+            },
+            "properties": [
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green",
+                      "value": 0
+                    },
+                    {
+                      "color": "#EAB839",
+                      "value": 500
+                    },
+                    {
+                      "color": "red",
+                      "value": 1000
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 11,
+        "w": 14,
+        "x": 0,
+        "y": 0
+      },
+      "id": 5,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "value_and_name",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.4.1",
+      "targets": [
+        {
+          "query": "from(bucket: \"transformer\")\r\n  |> range(start: -1m)\r\n  |> filter(fn: (r) => r._measurement == \"transformer_001\")\r\n  |> last()\r\n",
+          "refId": "A",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "InfluxDB"
+          }
+        }
+      ],
+      "title": "各参数实时总览",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "InfluxDB"
+      },
+      "gridPos": {
+        "h": 16,
+        "w": 10,
+        "x": 14,
+        "y": 0
+      },
+      "id": 7,
+      "options": {
+        "baidu": {
+          "callback": "bmapReady",
+          "key": ""
+        },
+        "editor": {
+          "format": "auto"
+        },
+        "editorMode": "visual",
+        "gaode": {
+          "key": "",
+          "plugin": "AMap.Scale,AMap.ToolBar"
+        },
+        "getOption": "const series = context.panel.data.series.map((s) => {\n  const sData = s.fields.find((f) => f.type === 'number').values.buffer || s.fields.find((f) => f.type === 'number').values;\n  const sTime = s.fields.find((f) => f.type === 'time').values.buffer || s.fields.find((f) => f.type === 'time').values;\n  \n  return {\n    name: s.refId,\n    type: 'line',\n    showSymbol: false,\n    areaStyle: {\n      opacity: 0.1,\n    },\n    lineStyle: {\n      width: 1,\n    },\n    data: sData.map((d, i) => [sTime[i], d.toFixed(2)]),\n  };\n});\n\n/**\n * Enable Data Zoom by default\n */\nsetTimeout(() => context.panel.chart.dispatchAction({\n  type: 'takeGlobalCursor',\n  key: 'dataZoomSelect',\n  dataZoomSelectActive: true,\n}), 500);\n\n/**\n * Update Time Range on Zoom\n */\ncontext.panel.chart.on('datazoom', function (params) {\n  const startValue = params.batch[0]?.startValue;\n  const endValue = params.batch[0]?.endValue;\n  locationService.partial({ from: startValue, to: endValue });\n});\n\nreturn {\n  backgroundColor: 'transparent',\n  tooltip: {\n    trigger: 'axis',\n  },\n  legend: {\n    left: '0',\n    bottom: '0',\n    data: context.panel.data.series.map((s) => s.refId),\n    textStyle: {\n      color: 'rgba(128, 128, 128, .9)',\n    },\n  },\n  toolbox: {\n    feature: {\n      dataZoom: {\n        yAxisIndex: 'none',\n        icon: {\n          zoom: 'path://',\n          back: 'path://',\n        },\n      },\n      saveAsImage: {},\n    }\n  },\n  xAxis: {\n    type: 'time',\n  },\n  yAxis: {\n    type: 'value',\n    min: 'dataMin',\n  },\n  grid: {\n    left: '2%',\n    right: '2%',\n    top: '2%',\n    bottom: 24,\n    containLabel: true,\n  },\n  series,\n};",
+        "google": {
+          "callback": "gmapReady",
+          "key": ""
+        },
+        "map": "none",
+        "renderer": "svg",
+        "themeEditor": {
+          "config": "{}",
+          "name": "default"
+        },
+        "visualEditor": {
+          "code": "// ==========================================\n// 1. 三元坐标转直角坐标函数 (保持不变)\n// ==========================================\nconst SQRT3_2 = 0.866025;\nfunction toCartesian(ch4, c2h4, c2h2) {\n  // 假设底边长 100\n  let x = c2h4 + ch4 / 2;\n  let y = ch4 * SQRT3_2;\n  return [x, y];\n}\n\n// ==========================================\n// 2. 定义杜瓦尔三角形区域 (标准 IEC 60599 坐标)\n// ==========================================\nconst zones = [\n  { name: 'PD', color: '#B4E1FF', points: [[98, 0, 2], [100, 0, 0], [98, 2, 0]] },\n  { name: 'T1', color: '#C1FFC1', points: [[98, 2, 0], [80, 20, 0], [76, 20, 4], [96, 0, 4], [98, 0, 2]] },\n  { name: 'T2', color: '#FFFACD', points: [[80, 20, 0], [50, 50, 0], [46, 50, 4], [76, 20, 4]] },\n  { name: 'T3', color: '#FFD700', points: [[50, 50, 0], [0, 100, 0], [0, 85, 15], [35, 50, 15], [46, 50, 4]] },\n  { name: 'D1', color: '#FFB6C1', points: [[87, 0, 13], [64, 23, 0], [0, 23, 0], [0, 0, 36]] },\n  { name: 'D2', color: '#FF69B4', points: [[64, 23, 36], [74, 13, 7], [47, 40, 13], [31, 40, 29], [0, 71, 29], [0, 23, 100]] },\n  { name: 'D+T', color: '#E6E6FA', points: [[96, 0, 4], [76, 20, 4], [46, 50, 4], [35, 50, 15], [0, 85, 15], [0, 71, 29], [31, 40, 29], [47, 40, 13], [64, 23, 13], [87, 0, 13]] }\n];\n\n// ==========================================\n// 3. 从 Grafana 数据源动态提取最新值 (终极匹配版)\n// ==========================================\nlet ch4_p = 0, c2h4_p = 0, c2h2_p = 0;\n\n// 1. 获取数据源 (兼容不同版本的插件 API)\nconst seriesList = (typeof context !== 'undefined' && context.panel && context.panel.data && context.panel.data.series)\n  ? context.panel.data.series\n  : (typeof data !== 'undefined' && data.series ? data.series : []);\n\n// 💡 调试神器：将数据打印到浏览器控制台\nconsole.log(\"🚀 Grafana 传入的原始数据结构:\", seriesList);\n\n// 2. 暴力遍历提取数据\nif (seriesList && seriesList.length > 0) {\n  seriesList.forEach(series => {\n    if (!series.fields) return;\n\n    series.fields.forEach(field => {\n      const name = field.name;\n      // 兼容不同的底层数组读取方式\n      const vals = field.values.buffer || field.values;\n\n      if (!vals || vals.length === 0) return;\n\n      // 取最新的一条数据 (数组的最后一个值)\n      const lastVal = vals[vals.length - 1];\n\n      // 过滤掉无效值\n      if (lastVal === null || lastVal === undefined) return;\n\n      // ⚠️ 关键修改：使用 includes 模糊匹配，防止 Grafana 自动追加后缀标签\n      if (name.includes('CH4_pct')) ch4_p = lastVal;\n      if (name.includes('C2H4_pct')) c2h4_p = lastVal;\n      if (name.includes('C2H2_pct')) c2h2_p = lastVal;\n    });\n  });\n}\n\nconsole.log(`🎯 最终提取用于画点的值 -> CH4: ${ch4_p}, C2H4: ${c2h4_p}, C2H2: ${c2h2_p}`);\n\nconst transformerPoint = toCartesian(ch4_p, c2h4_p, c2h2_p);\n\n// ==========================================\n// 4. ECharts 配置\n// ==========================================\nreturn {\n  tooltip: { trigger: 'item' },\n  xAxis: { show: false, min: -20, max: 120 },\n  yAxis: { show: false, min: -20, max: 80 },\n  series: [\n    // 渲染填充区域\n    {\n      type: 'custom',\n      name: 'Zones',\n      renderItem: (params, api) => {\n        const zone = zones[params.dataIndex];\n        const coords = zone.points.map(p => api.coord(toCartesian(p[0], p[1], p[2])));\n        return {\n          type: 'polygon',\n          shape: { points: coords },\n          style: api.style({ fill: zone.color, stroke: '#666', lineWidth: 1 })\n        };\n      },\n      data: zones.map(z => z.name)\n    },\n    // 渲染刻度文字和轴标题\n    {\n      type: 'scatter',\n      symbolSize: 0,\n      label: {\n        show: true,\n        formatter: '{b}',\n        fontSize: 14,\n        color: '#333',\n        // 新增：为文字添加白色描边，防止与背景色或边框线融为一体\n        textBorderColor: '#ffffff',\n        textBorderWidth: 2\n      },\n      data: [\n        // 1. 轴标题 (将 rotate 全部修改为 0，保持水平横向显示)\n        { name: 'CH4%', value: [12, 50], label: { rotate: 0, fontWeight: 'bold', fontSize: 16, color: '#000' } },\n        { name: 'C2H4%', value: [88, 50], label: { rotate: 0, fontWeight: 'bold', fontSize: 16, color: '#000' } },\n        { name: 'C2H2%', value: [50, -12], label: { rotate: 0, fontWeight: 'bold', fontSize: 16, color: '#000' } },        // 2. 左侧 CH4 刻度 (X轴向左平移量从 -3 增大到 -5)\n        { name: '20', value: toCartesian(20, 0, 80).map((v, i) => i === 0 ? v - 5 : v) },\n        { name: '40', value: toCartesian(40, 0, 60).map((v, i) => i === 0 ? v - 5 : v) },\n        { name: '60', value: toCartesian(60, 0, 40).map((v, i) => i === 0 ? v - 5 : v) },\n        { name: '80', value: toCartesian(80, 0, 20).map((v, i) => i === 0 ? v - 5 : v) },\n\n        // 3. 右侧 C2H4 刻度 (X轴向右平移量从 +3 增大到 +5)\n        { name: '20', value: toCartesian(80, 20, 0).map((v, i) => i === 0 ? v + 5 : v) },\n        { name: '40', value: toCartesian(60, 40, 0).map((v, i) => i === 0 ? v + 5 : v) },\n        { name: '60', value: toCartesian(40, 60, 0).map((v, i) => i === 0 ? v + 5 : v) },\n        { name: '80', value: toCartesian(20, 80, 0).map((v, i) => i === 0 ? v + 5 : v) },\n\n        // 4. 底部 C2H2 刻度 (Y轴向下平移量从 -3 增大到 -5)\n        { name: '20', value: [80, -5] },\n        { name: '40', value: [60, -5] },\n        { name: '60', value: [40, -5] },\n        { name: '80', value: [20, -5] }\n      ]\n    },\n    // 第四层：实际气体检测数据点 (红点)\n    {\n      name: '当前状态',\n      type: 'scatter',\n      symbolSize: 15,\n      itemStyle: { color: 'red', borderColor: '#fff', borderWidth: 2 },\n      // 将原始的百分比数据一起绑定到这个点上\n      data: [{\n        value: transformerPoint,\n        rawParams: { ch4: ch4_p, c2h4: c2h4_p, c2h2: c2h2_p }\n      }],\n      tooltip: {\n        formatter: function (params) {\n          const r = params.data.rawParams;\n          return `<b>当前变压器状态</b><br/>CH4: ${r.ch4.toFixed(2)}%<br/>C2H4: ${r.c2h4.toFixed(2)}%<br/>C2H2: ${r.c2h2.toFixed(2)}%`;\n        }\n      }\n    }\n  ]\n};",
+          "dataset": [],
+          "series": []
+        }
+      },
+      "pluginVersion": "7.2.4",
+      "targets": [
+        {
+          "query": "import \"influxdata/influxdb/schema\"\r\n\r\nfrom(bucket: \"transformer\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"transformer_001\")\r\n  |> filter(fn: (r) => r[\"_field\"] == \"CH4\" or r[\"_field\"] == \"C2H2\" or r[\"_field\"] == \"C2H4\")\r\n  |> last()  // 🌟 关键优化：先拿出最新的那一条数据，过滤掉没用的历史数据\r\n  |> schema.fieldsAsCols()  // 🌟 用官方内置函数代替手动 pivot，自动处理缺失列的问题\r\n  |> map(fn: (r) => {\r\n      // 获取数值，如果没有则默认为 0\r\n      ch4 = if exists r.CH4 then float(v: r.CH4) else 0.0\r\n      c2h2 = if exists r.C2H2 then float(v: r.C2H2) else 0.0\r\n      c2h4 = if exists r.C2H4 then float(v: r.C2H4) else 0.0\r\n      total = ch4 + c2h2 + c2h4\r\n      \r\n      // 增加 total > 0 的判断，防止被除数为 0 导致新的报错\r\n      return {\r\n          _time: r._time,\r\n          CH4_pct: if total > 0.0 then (ch4 / total) * 100.0 else 0.0,\r\n          C2H2_pct: if total > 0.0 then (c2h2 / total) * 100.0 else 0.0,\r\n          C2H4_pct: if total > 0.0 then (c2h4 / total) * 100.0 else 0.0\r\n      }\r\n  })",
+          "refId": "A",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "InfluxDB"
+          }
+        }
+      ],
+      "title": "Duval三角形检测",
+      "type": "volkovlabs-echarts-panel"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "InfluxDB"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 4,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "showValues": false,
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "fieldMinMax": false,
+          "mappings": [],
+          "max": 120,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "#EAB839",
+                "value": 80
+              },
+              {
+                "color": "red",
+                "value": 90
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 14,
+        "w": 14,
+        "x": 0,
+        "y": 11
+      },
+      "id": 1,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.4.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "InfluxDB"
+          },
+          "query": "from(bucket: \"transformer\")\r\n  |> range(start: -10m)\r\n  |> filter(fn: (r) => r._measurement == \"transformer_001\")\r\n  |> filter(fn: (r) => r._field == \"顶层油温\")",
+          "refId": "A"
+        }
+      ],
+      "title": "顶层油温",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "InfluxDB"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "max": 140,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "#EAB839",
+                "value": 95
+              },
+              {
+                "color": "red",
+                "value": 110
+              }
+            ]
+          },
+          "unit": "celsius"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 10,
+        "x": 14,
+        "y": 16
+      },
+      "id": 4,
+      "options": {
+        "minVizHeight": 75,
+        "minVizWidth": 75,
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true,
+        "sizing": "auto"
+      },
+      "pluginVersion": "12.4.1",
+      "targets": [
+        {
+          "query": "from(bucket: \"transformer\")\r\n  |> range(start: -1m)\r\n  |> filter(fn: (r) => r._measurement == \"transformer_001\")\r\n  |> filter(fn: (r) => r._field == \"绕组温度\")\r\n  |> last()\r\n",
+          "refId": "A",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "InfluxDB"
+          }
+        }
+      ],
+      "title": "绕组热点温度",
+      "type": "gauge"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "InfluxDB"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "showValues": false,
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "ppm"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 11,
+        "w": 14,
+        "x": 0,
+        "y": 25
+      },
+      "id": 2,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.4.1",
+      "targets": [
+        {
+          "query": "from(bucket: \"transformer\")\r\n  |> range(start: -10m)\r\n  |> filter(fn: (r) => r._measurement == \"transformer_001\")\r\n  |> filter(fn: (r) =>\r\n      r._field == \"H2\" or\r\n      r._field == \"CH4\" or\r\n      r._field == \"C2H2\" or\r\n      r._field == \"CO\" or\r\n      r._field == \"C2H4\")\r\n",
+          "refId": "A",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "InfluxDB"
+          }
+        }
+      ],
+      "title": "油中溶解气体浓度",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "InfluxDB"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "max": 50,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "#EAB839",
+                "value": 15
+              },
+              {
+                "color": "red",
+                "value": 25
+              }
+            ]
+          },
+          "unit": "ppm"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 10,
+        "x": 14,
+        "y": 26
+      },
+      "id": 3,
+      "options": {
+        "minVizHeight": 75,
+        "minVizWidth": 75,
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true,
+        "sizing": "auto"
+      },
+      "pluginVersion": "12.4.1",
+      "targets": [
+        {
+          "query": "from(bucket: \"transformer\")\r\n  |> range(start: -1m)\r\n  |> filter(fn: (r) => r._measurement == \"transformer_001\")\r\n  |> filter(fn: (r) => r._field == \"微水含量\")\r\n  |> last()\r\n",
+          "refId": "A",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "InfluxDB"
+          }
+        }
+      ],
+      "title": "油中微水含量",
+      "type": "gauge"
+    },
+    {
+      "id": 8,
+      "type": "volkovlabs-echarts-panel",
+      "title": "IEC 三比值法故障诊断",
+      "gridPos": {
+        "h": 14,
+        "w": 24,
+        "x": 0,
+        "y": 36
+      },
+      "datasource": {
+        "type": "influxdb",
+        "uid": "InfluxDB"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "InfluxDB"
+          },
+          "query": "// IEC 三比值法面板 — InfluxDB Flux 查询\n// 拉取最新一条数据中的 5 种气体浓度\n\nimport \"influxdata/influxdb/schema\"\n\nfrom(bucket: \"transformer\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"transformer_001\")\n  |> filter(fn: (r) =>\n      r[\"_field\"] == \"H2\"   or\n      r[\"_field\"] == \"CH4\"  or\n      r[\"_field\"] == \"C2H2\" or\n      r[\"_field\"] == \"C2H4\" or\n      r[\"_field\"] == \"C2H6\"\n  )\n  |> last()\n  |> schema.fieldsAsCols()\n"
+        }
+      ],
+      "options": {
+        "getOption": "// =====================================================\n// IEC 三比值法故障诊断面板 — ECharts getOption 脚本\n// 修改字体大小：搜索 font: 'XXpx'\n// 修改卡片尺寸：修改下方「布局计算」区域\n// =====================================================\n\n// ===== 从 Grafana 数据帧中提取最新气体浓度 =====\nconst series = context.panel.data.series;\nlet H2 = 0, CH4 = 0, C2H2 = 0, C2H4 = 0, C2H6 = 0;\n\nif (series && series.length > 0) {\n  series[0].fields.forEach(f => {\n    const v = f.values[f.values.length - 1];\n    if (v == null) return;\n    if (f.name === 'H2')   H2   = v;\n    if (f.name === 'CH4')  CH4  = v;\n    if (f.name === 'C2H2') C2H2 = v;\n    if (f.name === 'C2H4') C2H4 = v;\n    if (f.name === 'C2H6') C2H6 = v;\n  });\n}\n\n// ===== 计算 IEC 三比值 =====\nconst r1 = H2   > 0 ? CH4  / H2   : 0;   // CH4  / H2\nconst r2 = C2H4 > 0 ? C2H2 / C2H4 : 0;   // C2H2 / C2H4\nconst r3 = C2H6 > 0 ? C2H4 / C2H6 : 0;   // C2H4 / C2H6\n\n// ===== IEC 60599 编码规则 =====\nconst c1 = r1 < 0.1 ? 0 : r1 <= 1.0 ? 1 : 2;   // CH4/H2  : <0.1→0, 0.1~1→1, >1→2\nconst c2 = r2 < 0.1 ? 0 : r2 <= 3.0 ? 1 : 2;   // C2H2/C2H4: <0.1→0, 0.1~3→1, >3→2\nconst c3 = r3 < 1.0 ? 0 : r3 <= 3.0 ? 1 : 2;   // C2H4/C2H6: <1→0,   1~3→1,   >3→2\n\n// ===== 故障类型查找表（IEC 60599 Table 1）=====\nconst faultTable = {\n  '000': { name: '正常老化',          color: '#52c41a' },\n  '100': { name: '局部放电',          color: '#fadb14' },\n  '110': { name: '低能量放电',        color: '#fa8c16' },\n  '010': { name: '低能量放电',        color: '#fa8c16' },\n  '020': { name: '高能量放电',        color: '#ff4d4f' },\n  '120': { name: '高能量放电',        color: '#ff4d4f' },\n  '001': { name: '热故障 <150°C',    color: '#ffa940' },\n  '002': { name: '热故障 150~300°C', color: '#fa8c16' },\n  '101': { name: '热故障 300~700°C', color: '#ff4d4f' },\n  '202': { name: '热故障 >700°C',    color: '#cf1322' },\n};\nconst fault = faultTable[`${c1}${c2}${c3}`] || { name: '无法判断', color: '#8c8c8c' };\n\n// ===== 主题色（自动适配 Grafana 深色/浅色）=====\nconst isDark   = context.grafana.theme.isDark;\nconst cardBg   = isDark ? '#1e2a3a' : '#ffffff';\nconst textMain = isDark ? '#e2e8f0' : '#1a202c';\nconst textSub  = isDark ? '#94a3b8' : '#718096';\nconst border   = isDark ? '#2d4a6a' : '#e2e8f0';\n\nfunction codeColor(code) {\n  return ['#52c41a', '#fadb14', '#ff4d4f'][code] || '#8c8c8c';\n}\n\n// ===== 布局计算（调整这里改卡片大小）=====\nconst W   = context.panel.chart.getWidth();\nconst H   = context.panel.chart.getHeight();\nconst pad = 10;                          // 卡片间距（px）\nconst cw  = (W - pad * 5) * 0.235;      // 比值卡片宽度\nconst dw  = (W - pad * 5) * 0.265;      // 诊断卡片宽度（稍宽）\nconst ch  = H * 0.75;                     // 卡片高度\nconst cy  = 8;                          // 卡片顶部偏移\n\n// ===== 比值卡片生成函数 =====\nfunction ratioCard(x, label, ratioVal, code) {\n  const col = codeColor(code);\n  return {\n    type: 'group', x, y: cy,\n    children: [\n      // 卡片背景\n      { type: 'rect',\n        shape: { x: 0, y: 0, width: cw, height: ch, r: 10 },\n        style: { fill: cardBg, stroke: border, lineWidth: 1.5 } },\n\n      // 比值名称（如 CH4 / H2）\n      { type: 'text',\n        style: { x: cw/2, y: ch * 0.10, text: label,\n                 textAlign: 'center', fill: textSub,\n                 font: '15px sans-serif' } },               // ← 标签字体大小\n\n      // 比值数值（如 0.6795）\n      { type: 'text',\n        style: { x: cw/2, y: ch * 0.42, text: ratioVal.toFixed(4),\n                 textAlign: 'center', fill: textMain,\n                 font: 'bold 28px \"Courier New\", monospace' } },  // ← 数值字体大小\n\n      // \"编码\"小标签\n      { type: 'text',\n        style: { x: cw/2, y: ch * 0.63, text: '编  码',\n                 textAlign: 'center', fill: textSub,\n                 font: '13px sans-serif' } },               // ← 编码标签字体大小\n\n      // 编码色块背景\n      { type: 'rect',\n        shape: { x: cw/2 - 22, y: ch * 0.72, width: 44, height: 36, r: 6 },\n        style: { fill: col + '33', stroke: col, lineWidth: 2 } },\n\n      // 编码数字（0 / 1 / 2）\n      { type: 'text',\n        style: { x: cw/2, y: ch * 0.72 + ch * 0.12, text: String(code),\n                 textAlign: 'center', fill: col,\n                 font: 'bold 22px sans-serif' } },          // ← 编码数字字体大小\n    ]\n  };\n}\n\n// ===== 拼装最终 ECharts option =====\nconst x1 = pad;\nconst x2 = x1 + cw + pad;\nconst x3 = x2 + cw + pad;\nconst x4 = x3 + cw + pad;\n\nreturn {\n  backgroundColor: 'transparent',\n  graphic: [\n    // 三个比值卡片\n    ratioCard(x1, 'CH4 / H2',    r1, c1),\n    ratioCard(x2, 'C2H2 / C2H4', r2, c2),\n    ratioCard(x3, 'C2H4 / C2H6', r3, c3),\n\n    // 诊断结果卡片\n    {\n      type: 'group', x: x4, y: cy,\n      children: [\n        // 卡片背景\n        { type: 'rect',\n          shape: { x: 0, y: 0, width: dw, height: ch, r: 10 },\n          style: { fill: fault.color + '1a', stroke: fault.color, lineWidth: 2.5 } },\n\n        // \"诊断结果\"标签\n        { type: 'text',\n          style: { x: dw/2, y: ch * 0.10, text: '诊 断 结 果',\n                   textAlign: 'center', fill: textSub,\n                   font: '15px sans-serif' } },              // ← 标签字体大小\n\n        // 故障类型名称\n        { type: 'text',\n          style: { x: dw/2, y: ch * 0.40, text: fault.name,\n                   textAlign: 'center', fill: fault.color,\n                   font: 'bold 28px sans-serif' } },         // ← 故障名称字体大小\n\n        // 编码组合\n        { type: 'text',\n          style: { x: dw/2, y: ch * 0.60,\n                   text: `编码组合  [ ${c1},  ${c2},  ${c3} ]`,\n                   textAlign: 'center', fill: textSub,\n                   font: '14px \"Courier New\", monospace' } }, // ← 编码组合字体大小\n\n        // 分隔线\n        { type: 'line',\n          shape: { x1: dw*0.12, y1: ch*0.70, x2: dw*0.88, y2: ch*0.70 },\n          style: { stroke: border, lineWidth: 1 } },\n\n        // 气体原始值（第一行）\n        { type: 'text',\n          style: { x: dw/2, y: ch * 0.78,\n                   text: `H2:${H2.toFixed(1)}  CH4:${CH4.toFixed(1)}  C2H6:${C2H6.toFixed(1)}`,\n                   textAlign: 'center', fill: textSub,\n                   font: '13px monospace' } },               // ← 原始值字体大小\n\n        // 气体原始值（第二行）\n        { type: 'text',\n          style: { x: dw/2, y: ch * 0.90,\n                   text: `C2H2:${C2H2.toFixed(2)}  C2H4:${C2H4.toFixed(1)}`,\n                   textAlign: 'center', fill: textSub,\n                   font: '13px monospace' } },               // ← 原始值字体大小\n      ]\n    },\n  ]\n};\n",
+        "renderer": "canvas",
+        "editorMode": "code"
+      }
+    }
+  ],
+  "preload": false,
+  "refresh": "5s",
+  "schemaVersion": 42,
+  "tags": [],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "now-5m",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "变压器实时监测",
+  "uid": "adpt2zv",
+  "version": 43,
+  "weekStart": "",
+  "id": null
+}

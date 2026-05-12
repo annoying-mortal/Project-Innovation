@@ -1,0 +1,16 @@
+apiVersion: 1
+
+datasources:
+  - name: InfluxDB
+    type: influxdb
+    access: proxy
+    url: http://influxdb:8086
+    isDefault: true
+    jsonData:
+      version: Flux           # InfluxDB 2.x 使用 Flux 查询语言
+      organization: lab
+      defaultBucket: transformer
+      tlsSkipVerify: true
+    secureJsonData:
+      # 必须与 docker-compose.yml 中的 DOCKER_INFLUXDB_INIT_ADMIN_TOKEN 一致
+      token: my-influxdb-super-secret-token
