@@ -831,10 +831,45 @@
         "uid": "InfluxDB"
       },
       "gridPos": {
-        "h": 11,
+        "h": 8,
         "w": 24,
         "x": 0,
         "y": 43
+      },
+      "id": 11,
+      "title": "融合诊断结果（随机森林 + Duval）",
+      "type": "volkovlabs-echarts-panel",
+      "pluginVersion": "6.6.0",
+      "options": {
+        "renderer": "canvas",
+        "editorMode": "code",
+        "editor": { "format": "auto" },
+        "map": "none",
+        "baidu":  { "callback": "bmapReady", "key": "" },
+        "gaode":  { "key": "", "plugin": "AMap.Scale,AMap.ToolBar" },
+        "google": { "callback": "gmapReady", "key": "" },
+        "themeEditor": { "config": "{}", "name": "default" },
+        "visualEditor": { "code": "", "dataset": [], "series": [] },
+        "getOption": "const series = context.panel.data.series;\nlet faultName = '等待数据…', faultCode = -1, conf = 0, duvalRegion = '?', rfCode = -1, rfConf = 0;\n\nif (series && series.length > 0) {\n  series[0].fields.forEach(f => {\n    const v = f.values[f.values.length - 1];\n    if (v == null) return;\n    if (f.name === 'fault_type_name') faultName   = v;\n    if (f.name === 'fault_code')      faultCode   = v;\n    if (f.name === 'confidence')      conf        = v;\n    if (f.name === 'duval_region')    duvalRegion = v;\n    if (f.name === 'rf_fault_code')   rfCode      = v;\n    if (f.name === 'rf_confidence')   rfConf      = v;\n  });\n}\n\nconst faultColors = [\n  '#52c41a','#fadb14','#fa8c16','#ff4d4f',\n  '#ffa940','#fa8c16','#ff4d4f','#722ed1'\n];\nconst faultColor = faultCode >= 0 && faultCode < faultColors.length ? faultColors[faultCode] : '#8c8c8c';\n\nconst isDark  = context.grafana.theme.isDark;\nconst cardBg  = isDark ? '#1e2a3a' : '#ffffff';\nconst textMain= isDark ? '#e2e8f0' : '#1a202c';\nconst textSub = isDark ? '#94a3b8' : '#718096';\nconst border  = isDark ? '#2d4a6a' : '#e2e8f0';\n\nconst W  = context.panel.chart.getWidth();\nconst H  = context.panel.chart.getHeight();\nconst pad= 12;\nconst cw = (W - pad * 5) / 4;\nconst ch = H * 0.80;\nconst cy = 4;\n\nfunction card(x, title, mainText, mainColor, subText) {\n  return {\n    type: 'group', x, y: cy,\n    children: [\n      { type: 'rect', shape: { x: 0, y: 0, width: cw, height: ch, r: 10 },\n        style: { fill: cardBg, stroke: border, lineWidth: 1.5 } },\n      { type: 'text', style: { x: cw/2, y: ch*0.20, text: title,\n        textAlign: 'center', fill: textSub, font: '13px sans-serif' } },\n      { type: 'text', style: { x: cw/2, y: ch*0.50, text: String(mainText),\n        textAlign: 'center', fill: mainColor, font: 'bold 22px sans-serif' } },\n      { type: 'text', style: { x: cw/2, y: ch*0.80, text: String(subText),\n        textAlign: 'center', fill: textSub, font: '12px monospace' } },\n    ]\n  };\n}\n\nconst rfFaultNames = ['正常老化','局部放电','低能量放电','高能量放电','热故障<150°C','热故障150~300°C','热故障300~700°C','放电+热故障'];\nconst rfName = rfCode >= 0 && rfCode < rfFaultNames.length ? rfFaultNames[rfCode] : '未知';\n\nreturn {\n  backgroundColor: 'transparent',\n  graphic: [\n    card(pad,            '融合诊断结论',  faultName,                    faultColor, `置信度  ${(conf*100).toFixed(1)}%`),\n    card(pad*2+cw,       'Duval 区域',    duvalRegion,                  textMain,   'Duval Triangle I'),\n    card(pad*3+cw*2,     'RF 诊断',       rfName,                       textMain,   `置信度  ${(rfConf*100).toFixed(1)}%`),\n    card(pad*4+cw*3,     'RF + Duval 权重','RF 60%  /  Duval 40%',     textSub,    '加权投票融合'),\n  ]\n};\n"
+      },
+      "targets": [
+        {
+          "datasource": { "type": "influxdb", "uid": "InfluxDB" },
+          "refId": "A",
+          "query": "from(bucket: \"transformer\")\n  |> range(start: -5m)\n  |> filter(fn: (r) => r._measurement == \"transformer_001_diagnosis\")\n  |> last()\n  |> pivot(rowKey:[\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")\n"
+        }
+      ]
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "InfluxDB"
+      },
+      "gridPos": {
+        "h": 11,
+        "w": 24,
+        "x": 0,
+        "y": 51
       },
       "id": 8,
       "options": {

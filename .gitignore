@@ -1,1 +1,27 @@
-*.json
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+env/
+
+# 模型文件（体积大，训练时自动生成）
+code/models/
+
+# macOS
+.DS_Store
+
+# 编辑器
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# 环境变量
+.env
+.env.local
+
+# Docker 数据卷（本地运行产物）
+influxdb-data/
+grafana-data/

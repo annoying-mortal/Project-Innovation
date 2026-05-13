@@ -38,10 +38,11 @@ services:
       - grafana-data:/var/lib/grafana
       # 自动注入 InfluxDB 数据源配置，无需在 UI 里手动添加
       - ./grafana/provisioning:/etc/grafana/provisioning
+      # 插件直接从仓库挂载，无需运行时下载，跨平台通用
+      - ./grafana/plugins:/var/lib/grafana/plugins
     environment:
       GF_SECURITY_ADMIN_USER:     admin
       GF_SECURITY_ADMIN_PASSWORD: admin
-      GF_INSTALL_PLUGINS: volkovlabs-echarts-panel 6.6.0
     depends_on:
       - influxdb
 
