@@ -46,6 +46,22 @@ services:
     depends_on:
       - influxdb
 
+  # ─────────────────────────────────────────
+  # Pipeline（main_pipeline.py）
+  # 随 InfluxDB 启动后自动运行
+  # ─────────────────────────────────────────
+  pipeline:
+    build: .
+    container_name: pipeline
+    restart: unless-stopped
+    depends_on:
+      - influxdb
+    environment:
+      INFLUXDB_URL:    http://influxdb:8086
+      INFLUXDB_TOKEN:  my-influxdb-super-secret-token
+      INFLUXDB_ORG:    lab
+      INFLUXDB_BUCKET: transformer
+
 volumes:
   influxdb-data:
   influxdb-config:

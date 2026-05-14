@@ -9,8 +9,8 @@
 
 import os
 import sys
+import signal
 import time
-import threading
 from collections import deque
 from datetime import datetime
 
@@ -247,14 +247,16 @@ class DataPipeline:
     # ------------------------------------------------------------------
 
     def run(self):
+        signal.signal(signal.SIGTERM, lambda *_: setattr(self, 'is_running', False))
+        signal.signal(signal.SIGINT,  lambda *_: setattr(self, 'is_running', False))
+
         print('\n' + '='*52)
         print('🚀  变压器数据处理管道启动')
         print(f'📡  InfluxDB: {URL}')
         print(f'⏱️   轮询间隔: {POLL_INTERVAL}s')
-        print('🛑  停止方式: 终端按 Enter')
+        print('🛑  停止方式: SIGTERM / Ctrl-C')
         print('='*52 + '\n')
 
-        threading.Thread(target=self._listen_stop, daemon=True).start()
         self.is_running = True
 
         while self.is_running:
@@ -273,11 +275,6 @@ class DataPipeline:
         print('\n✅  正在关闭管道…')
         self.client.close()
         print('👋  管道已安全退出')
-
-    def _listen_stop(self):
-        input()
-        self.is_running = False
-
 
 if __name__ == '__main__':
     DataPipeline().run()
