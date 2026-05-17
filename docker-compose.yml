@@ -43,6 +43,7 @@ services:
     environment:
       GF_SECURITY_ADMIN_USER:     admin
       GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS: volkovlabs-echarts-panel
     depends_on:
       - influxdb
 
@@ -57,10 +58,11 @@ services:
     depends_on:
       - influxdb
     environment:
-      INFLUXDB_URL:    http://influxdb:8086
-      INFLUXDB_TOKEN:  my-influxdb-super-secret-token
-      INFLUXDB_ORG:    lab
-      INFLUXDB_BUCKET: transformer
+      INFLUXDB_URL:       http://influxdb:8086
+      INFLUXDB_TOKEN:     my-influxdb-super-secret-token
+      INFLUXDB_ORG:       lab
+      INFLUXDB_BUCKET:    transformer
+      PYTHONUNBUFFERED:   "1"
 
 volumes:
   influxdb-data:

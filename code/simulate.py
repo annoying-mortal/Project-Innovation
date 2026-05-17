@@ -7,10 +7,11 @@ from influxdb_client import InfluxDBClient, Point
 from influxdb_client.client.write_api import SYNCHRONOUS
 
 # ================= 配置区域 =================
-URL    = "http://localhost:8086"
-TOKEN  = "my-influxdb-super-secret-token"
-ORG    = "lab"
-BUCKET = "transformer"
+URL         = "http://localhost:8086"
+TOKEN       = "my-influxdb-super-secret-token"
+ORG         = "lab"
+BUCKET      = "transformer"
+NOISE_SCALE = 0.3   # 传感器噪声缩放系数，1.0 为原始强度，调小使曲线更平滑
 
 # ================= 故障场景定义 =================
 # 每个场景的基准气体值（ppm）均来自 IEC 60599 典型值范围，
@@ -23,7 +24,7 @@ SCENARIOS = {
         'desc':    'H2↑ CH4低, 三比值均 <阈值，CO2/CO≈10，绝缘正常老化',
         # IEC: CH4/H2=0.08(code0), C2H2/C2H4=0.05(0), C2H4/C2H6=0.5(0) → 000
         # H2=250 使比值=0.08，远离 0.1 的临界点，避免落入局部放电编码
-        'H2':   250.0, 'CH4':  20.0, 'C2H2':  1.0, 'C2H4': 20.0, 'C2H6': 40.0,
+        'H2':    50.0, 'CH4':   4.0, 'C2H2': 0.05, 'C2H4':  0.7, 'C2H6': 10.0,
         'CO':   100.0, 'CO2': 1000.0, 'moisture': 12.0,
         'oil_temp': 50.0, 'winding_temp_extra': 15.0,
     },
@@ -159,7 +160,7 @@ try:
         base_CO2  += random.uniform(0.0, 0.20 * drift)
 
         # 传感器测量噪声
-        noise = drift ** 0.5
+        noise = drift ** 0.5 * NOISE_SCALE
         H2   = max(0.0, base_H2   + random.uniform(-0.5, 0.5) * noise)
         CH4  = max(0.0, base_CH4  + random.uniform(-0.5, 0.5) * noise)
         C2H4 = max(0.0, base_C2H4 + random.uniform(-0.3, 0.3) * noise)

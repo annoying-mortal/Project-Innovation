@@ -2,9 +2,21 @@
 决策融合模块
 将 Duval 三角形法和随机森林模型的诊断结果进行融合
 """
-from typing import Dict, List
+from typing import Dict, List, Optional
 from datetime import datetime
 import numpy as np
+
+# IEEE C57.104-2019 Level 1 正常浓度上限（ppm）
+# 所有气体均低于此值时视为变压器处于正常状态，跳过 Duval，直接使用 RF 置信度
+_NORMAL_LIMITS: Dict[str, float] = {
+    'H2':   100.0,
+    'CH4':  120.0,
+    'C2H2':   3.0,
+    'C2H4':  50.0,
+    'C2H6':  65.0,
+    'CO':   350.0,
+    'CO2': 2500.0,
+}
 
 
 def _to_cartesian(ch4_pct: float, c2h4_pct: float):
@@ -75,6 +87,13 @@ class FusionDiagnosis:
         self.duval_weight = duval_weight
         self.rf_weight = rf_weight
 
+    def _all_normal(self, gas_values: Dict[str, float]) -> bool:
+        """判断所有气体是否均在 IEEE C57.104-2019 Level 1 正常范围内"""
+        return all(
+            gas_values.get(gas, 0.0) < limit
+            for gas, limit in _NORMAL_LIMITS.items()
+        )
+
     # ------------------------------------------------------------------
     # Duval 三角形
     # ------------------------------------------------------------------
@@ -140,8 +159,13 @@ class FusionDiagnosis:
     # 融合
     # ------------------------------------------------------------------
 
-    def fuse_diagnoses(self, duval_result: Dict, rf_result: Dict) -> Dict:
-        """加权投票融合两个诊断结果"""
+    def fuse_diagnoses(self, duval_result: Dict, rf_result: Dict,
+                       gas_values: Optional[Dict[str, float]] = None) -> Dict:
+        """
+        融合诊断：
+        - 所有气体均在正常范围内（IEEE C57.104-2019 Level 1）→ 直接采用 RF 结果
+        - 任意气体超标 → Duval + RF 加权投票
+        """
         duval_code = duval_result.get('fault_code', 0)
         rf_code    = rf_result.get('fault_code', 0)
 
@@ -151,6 +175,23 @@ class FusionDiagnosis:
         if rf_code == -1:
             return duval_result
 
+        # 正常状态：跳过 Duval，直接使用 RF 置信度
+        if gas_values and self._all_normal(gas_values):
+            rf_conf = rf_result.get('confidence', 0.0)
+            return {
+                'method':     'RF Only (Normal State)',
+                'fault_type': rf_result.get('fault_type', '未知'),
+                'fault_code': rf_code,
+                'confidence': round(rf_conf, 4),
+                'weights':    {'duval': 0.0, 'random_forest': 1.0},
+                'sub_results': {
+                    'duval':         duval_result,
+                    'random_forest': rf_result,
+                },
+                'timestamp': datetime.now().isoformat(),
+            }
+
+        # 异常状态：Duval + RF 加权投票
         duval_conf = duval_result.get('confidence', 0.0)
         rf_conf    = rf_result.get('confidence', 0.0)
 

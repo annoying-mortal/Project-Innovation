@@ -8,6 +8,7 @@ env/
 
 # 模型文件（体积大，训练时自动生成）
 code/models/
+*.pkl
 
 # macOS
 .DS_Store

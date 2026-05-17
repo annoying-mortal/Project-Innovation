@@ -64,10 +64,10 @@ class RandomForestDiagnosis:
         # 定义每种故障类型的特征分布
         fault_distributions = {
             0: {  # 正常老化
-                'IEC_CH4_H2': (0.2, 0.05),  # <0.1
+                'IEC_CH4_H2': (0.05, 0.02),  # <0.1 (IEC 60599 Code 0)
                 'IEC_C2H2_C2H4': (0.05, 0.02),  # <0.1
                 'IEC_C2H4_C2H6': (0.5, 0.1),  # <1
-                'CO2_CO_Ratio': (10, 2),  # 3~10
+                'CO2_CO_Ratio': (13, 2),  # >11 (IEC 60599 正常老化典型值)
                 'Moisture_Relative_Humidity': (25, 5),  # <30%
                 'Delta_T_Winding_Oil': (15, 3)  # 正常温升
             },

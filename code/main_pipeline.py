@@ -175,7 +175,8 @@ class DataPipeline:
 
         duval_result = self.fusion.duval_triangle_diagnosis(ch4_pct, c2h4_pct, c2h2_pct)
         rf_result    = self.fusion.random_forest_diagnosis(self.rf, features)
-        return self.fusion.fuse_diagnoses(duval_result, rf_result)
+        gas_values   = {g: preprocessed.get(g, 0.0) for g in GAS_FIELDS}
+        return self.fusion.fuse_diagnoses(duval_result, rf_result, gas_values=gas_values)
 
     # ------------------------------------------------------------------
     # 写回 InfluxDB
@@ -229,11 +230,41 @@ class DataPipeline:
         sub   = diagnosis.get('sub_results', {})
         duval = sub.get('duval', {})
         rf    = sub.get('random_forest', {})
+
+        # 传感器数据
+        H2   = preprocessed.get('H2',   0.0)
+        CH4  = preprocessed.get('CH4',  0.0)
+        C2H2 = preprocessed.get('C2H2', 0.0)
+        C2H4 = preprocessed.get('C2H4', 0.0)
+        C2H6 = preprocessed.get('C2H6', 0.0)
+        CO   = preprocessed.get('CO',   0.0)
+        CO2  = preprocessed.get('CO2',  0.0)
+        oil  = preprocessed.get('顶层油温', 0.0)
+        wind = preprocessed.get('绕组温度', 0.0)
+        mois = preprocessed.get('微水含量', 0.0)
+
+        # IEC 三比值
+        r1 = CH4  / H2   if H2   > 0 else 0
+        r2 = C2H2 / C2H4 if C2H4 > 0 else 0
+        r3 = C2H4 / C2H6 if C2H6 > 0 else 0
+
         print(
-            f"🏥  融合诊断: {diagnosis['fault_type']} "
-            f"(置信度 {diagnosis['confidence']:.0%})  |  "
-            f"Duval: {duval.get('details', {}).get('region', '?')}  |  "
-            f"RF: {rf.get('fault_type', '?')}"
+            f"📊  气体(ppm)  H2:{H2:.1f}  CH4:{CH4:.1f}  C2H2:{C2H2:.3f}  "
+            f"C2H4:{C2H4:.2f}  C2H6:{C2H6:.1f}  CO:{CO:.1f}  CO2:{CO2:.1f}"
+        )
+        print(
+            f"🌡️   温度/湿度  油温:{oil:.1f}°C  绕组:{wind:.1f}°C  微水:{mois:.2f}ppm"
+        )
+        print(
+            f"📐  IEC三比值  CH4/H2:{r1:.4f}  C2H2/C2H4:{r2:.4f}  C2H4/C2H6:{r3:.4f}"
+        )
+        method = diagnosis.get('method', '')
+        mode   = '仅RF·气体正常' if 'Normal State' in method else 'Duval+RF'
+        print(
+            f"🏥  融合诊断:  {diagnosis['fault_type']} "
+            f"(置信度 {diagnosis['confidence']:.0%})  [{mode}]  |  "
+            f"Duval:{duval.get('details', {}).get('region', '?')}(conf {duval.get('confidence', 0):.0%})  |  "
+            f"RF:{rf.get('fault_type', '?')}(conf {rf.get('confidence', 0):.0%})"
         )
 
         try:
